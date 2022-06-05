@@ -1,2 +1,2 @@
-# discord-ext-commands-cog-base
-base class for using discord.ext.commands.cog in discord.py.
+# discord-ext-commands-coghelper
+Helps the features of discord.ext.commands.Cog in discord.py
