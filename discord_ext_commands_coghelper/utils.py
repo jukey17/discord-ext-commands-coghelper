@@ -1,10 +1,23 @@
 import datetime
 import re
-from typing import Dict, Callable, Any, List, Tuple
+from typing import Dict, Callable, Any, List, Tuple, Optional
 
 from discord.ext.commands import Context
 
 from discord_ext_commands_coghelper import ArgumentError
+
+
+def to_utc_naive(dt: datetime.datetime) -> Optional[datetime.datetime]:
+    """Convert to utc naive datetime
+
+    :param dt: aware datetime
+    :type dt: datetime.datetime
+    :return: utc naive datetime
+    :rtype: datetime.datetime
+    """
+    if dt is None:
+        return None
+    return dt.astimezone(datetime.timezone.utc).replace(tzinfo=None)
 
 
 def get_bool(dic: Dict[str, str], key: str, default: bool = False) -> bool:
