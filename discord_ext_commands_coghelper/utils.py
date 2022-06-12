@@ -87,6 +87,33 @@ def get_datetime(
     return datetime.datetime.strptime(dic[key], fmt)
 
 
+def get_datetime_fmts(
+    dic: Dict[str, str], key: str, fmts: List[str], default: datetime.datetime = None
+) -> datetime.datetime:
+    """Get a value of type datetime from Dict[str, str]
+
+    :param dic: target dict value
+    :type dic: typing.Dict[str, str]
+    :param key: key to get the value
+    :type key: str
+    :param fmts: for convert to datetime
+    :type fmts: List[str]
+    :param default: default value if key does not exist
+    :type default: datetime.datetime
+    :return: datetime value
+    :rtype: datetime.datetime
+    """
+    for fmt in fmts:
+        # noinspection PyBroadException
+        try:
+            dt = get_datetime(dic, key, fmt, default)
+        except Exception:
+            continue
+        else:
+            return dt
+    return default
+
+
 def get_before_after(
     ctx: Context, dic: Dict[str, str], fmt: str, tzinfo: datetime.timezone = None
 ) -> (datetime.datetime, datetime.datetime):
@@ -107,6 +134,35 @@ def get_before_after(
     if before and tzinfo:
         before = before.replace(tzinfo=tzinfo)
     after = get_datetime(dic, "after", fmt)
+    if after and tzinfo:
+        after = after.replace(tzinfo=tzinfo)
+
+    if after is not None and before is not None and after > before:
+        raise ArgumentError(ctx, before="before must be a future than after.")
+
+    return before, after
+
+
+def get_before_after_fmts(
+    ctx: Context, dic: Dict[str, str], fmts: List[str], tzinfo: datetime.timezone = None
+) -> (datetime.datetime, datetime.datetime):
+    """Get a before/after value of type datetime from Dict[str, str]
+
+    :param ctx:
+    :type ctx:
+    :param dic: target dict value
+    :type dic: typing.Dict[str, str]
+    :param fmts: for convert to datetime
+    :type fmts: List[str]
+    :param tzinfo: specify if you want an aware datetime
+    :type tzinfo: timedate.timezone
+    :return: before and after datetime
+    :rtype: datetime.datetime, datetime.datetime
+    """
+    before = get_datetime_fmts(dic, "before", fmts)
+    if before and tzinfo:
+        before = before.replace(tzinfo=tzinfo)
+    after = get_datetime_fmts(dic, "after", fmts)
     if after and tzinfo:
         after = after.replace(tzinfo=tzinfo)
 
