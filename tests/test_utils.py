@@ -25,6 +25,48 @@ def test_to_utc_naive(dt: datetime.datetime, expected):
 
 
 @pytest.mark.parametrize(
+    ("data", "fmts", "default", "expected"),
+    [
+        (
+            "2000-01-01",
+            ["%Y%m%d", "%Y-%m-%d", "%Y/%m/%d"],
+            None,
+            datetime.datetime(year=2000, month=1, day=1),
+        ),
+        (
+            "20000101",
+            ["%Y/%m/%d"],
+            None,
+            None,
+        ),
+    ],
+)
+def test_try_strptime(data: str, fmts: List[str], default: datetime.datetime, expected):
+    assert try_strptime(data, *fmts, default=default) == expected
+
+
+@pytest.mark.parametrize(
+    ("dt", "fmts", "default", "expected"),
+    [
+        (
+            datetime.datetime(year=2000, month=1, day=1),
+            ["%Y%m%d", "%Y-%m-%d", "%Y/%m/%d"],
+            None,
+            "20000101",
+        ),
+        (
+            datetime.datetime(year=2000, month=1, day=1),
+            ["invalid"],
+            "invalid",
+            "invalid",
+        ),
+    ],
+)
+def test_try_strftime(dt: datetime.datetime, fmts: List[str], default: str, expected):
+    assert try_strftime(dt, *fmts, default=default) == expected
+
+
+@pytest.mark.parametrize(
     ("dic", "key", "default", "expected"),
     [
         (dict(key="False"), "key", True, False),
@@ -129,7 +171,7 @@ def test_get_datetime_fmts(
     default: datetime.datetime,
     expected: datetime.datetime,
 ):
-    assert get_datetime_fmts(dic, key, fmts, default) == expected
+    assert get_datetime_fmts(dic, key, *fmts, default=default) == expected
 
 
 @pytest.mark.parametrize(
@@ -213,4 +255,4 @@ def test_get_before_after_fmts(
     tzinfo: datetime.timezone,
     expected: Tuple[datetime.datetime, datetime.datetime],
 ):
-    assert get_before_after_fmts(ctx, dic, fmts, tzinfo) == expected
+    assert get_before_after_fmts(ctx, dic, *fmts, tzinfo=tzinfo) == expected
