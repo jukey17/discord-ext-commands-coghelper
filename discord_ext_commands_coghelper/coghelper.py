@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Dict, Tuple, Any
 
 from discord import Embed
@@ -6,9 +7,22 @@ from discord.ext.commands import Bot
 from discord.ext.commands.context import Context
 
 from discord_ext_commands_coghelper import ArgumentError, ExecutionError
-from discord_ext_commands_coghelper.utils import _parse_tuple_args
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_tuple_args(args: Tuple[Any]) -> Dict[str, str]:
+    parsed: Dict[str, str] = {}
+    for arg in args:
+        if not isinstance(arg, str):
+            continue
+        result = re.match(r"(.*)=(.*)", arg)
+        if result is None:
+            parsed[arg] = "True"
+        else:
+            parsed[result.group(1)] = result.group(2)
+
+    return parsed
 
 
 class CogHelper:
